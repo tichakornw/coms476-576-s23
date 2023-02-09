@@ -12,6 +12,7 @@ from discrete_search import (
     ALG_DFS,
     ALG_ASTAR,
 )
+import numpy as np
 
 
 class Grid2DStates(StateSpace):
@@ -30,10 +31,13 @@ class Grid2DStates(StateSpace):
 
     def __contains__(self, x):
         # TODO: Implement this function
+        #print("inside contain",x[0],x[1],self.Ymin,self.Ymax)
+        return (x[0] >= self.Xmin and x[0] <self.Xmax) and (x[1] >= self.Ymin and x[1] < self.Ymax) and (x not in self.O)
         raise NotImplementedError
 
     def get_distance_lower_bound(self, x1, x2):
         # TODO: Implement this function
+        return np.linalg.norm(np.array(x1) - np.array(x2))
         raise NotImplementedError
 
     def draw(self, ax, grid_on=True, tick_step=[1, 1]):
@@ -80,6 +84,8 @@ class Grid2DStates(StateSpace):
 class GridStateTransition(StateTransition):
     def __call__(self, x, u):
         # TODO: Implement this function
+        x_new = (x[0] + u[0], x[1] + u[1])
+        return x_new
         raise NotImplementedError
 
 
@@ -91,7 +97,20 @@ class Grid2DActions(ActionSpace):
         self.f = f
 
     def __call__(self, x):
+        action_list=[]
+        for act in self.all_actions:
+            temp=f(x,act)
+            if self.X.__contains__(temp):
+                #print("action going inside list",temp)
+                action_list.append(temp)
         # TODO: Implement this function
+        return action_list
+        
+          
+
+
+        
+            
         raise NotImplementedError
 
 
@@ -172,8 +191,11 @@ if __name__ == "__main__":
     X = Grid2DStates(0, M, 0, N, O)
     f = GridStateTransition()
     U = Grid2DActions(X, f)
+    
+    
 
     result = fsearch(X, U, f, xI, XG, args.alg)
+    print("rs",result)
 
     with open(args.out, "w") as outfile:
         json.dump(result, outfile)
