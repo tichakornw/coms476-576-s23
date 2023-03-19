@@ -7,6 +7,7 @@ def draw(ax, cspace, obstacles, qI, qG, G, path, title=""):
     @type ax: axes.Axes, created, e.g., fig, ax = plt.subplots()
     @type cspace: a list [(xmin, xmax), (ymin, ymax)] indicating that the C-space
         is given by [xmin, xmax] \times [ymin, ymax].
+    @type G: an object with draw(ax) method. This object represents a graph to be drawn.
     @type obstacles: a list [obs_1, ..., obs_m] of obstacles, where obs_i is a list of coordinates
         on the boundary of the i^{th} obstacle.
     @type qI: a tuple (x, y), indicating the initial configuration.
@@ -16,7 +17,9 @@ def draw(ax, cspace, obstacles, qI, qG, G, path, title=""):
     """
 
     draw_cspace(ax, cspace, obstacles)
-    G.draw(ax)
+    drawG = getattr(G, "draw", None)
+    if callable(drawG):
+        G.draw(ax)
     if qI is not None:
         if len(qI) == 2:
             ax.plot(qI[0], qI[1], "bx", markersize=10)
